@@ -1,22 +1,24 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - se-lab-testapp-005-alex
+name: CD Pipeline - se-lab-testapp-005-alex
 
 on:
   push:
     branches:
-      - main
+      - '**'  # Trigger on push to any branch
+  pull_request:   # Also trigger on PRs
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read # Required for actions/checkout
+      contents: read  # Required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
@@ -24,19 +26,19 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Restore dependencies
-        run: dotnet restore ./TestAppAlex/TestAppAlex.csproj
+        run: dotnet restore "${{ github.workspace }}/TestAppAlex/TestAppAlex.csproj"
 
       - name: Build with dotnet
-        run: dotnet build ./TestAppAlex/TestAppAlex.csproj --configuration Release --no-restore
+        run: dotnet build "${{ github.workspace }}/TestAppAlex/TestAppAlex.csproj" --configuration Release --no-restore
 
       - name: dotnet publish
-        run: dotnet publish ./TestAppAlex/TestAppAlex.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp" --no-build
+        run: dotnet publish "${{ github.workspace }}/TestAppAlex/TestAppAlex.csproj" -c Release -o "${{ github.workspace }}/published-app" --no-build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: "${{ github.workspace }}/published-app"
 
   deploy:
     runs-on: windows-latest
