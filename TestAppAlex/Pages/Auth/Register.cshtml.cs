@@ -1,35 +1,39 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using TestAppAlex.Services; 
 
 public class RegisterModel : PageModel
 {
+    private readonly IUserService _userService;
+
+    public RegisterModel(IUserService userService)
+    {
+        _userService = userService;
+    }
+
     [BindProperty]
-    public RegisterInput Input { get; set; } = new RegisterInput();
+    public RegisterInput Input { get; set; } = new();
 
     public string? ErrorMessage { get; set; }
 
-    public void OnGet()
-    {
-        // Nothing to do here yet
-    }
+    public void OnGet() { }
 
-    public IActionResult OnPost()
+    public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
         {
-            ErrorMessage = "Please fill all fields correctly.";
+            ErrorMessage = "Please fill in all fields.";
             return Page();
         }
 
-        if (Input.Password != Input.ConfirmPassword)
+        var success = await _userService.RegisterAsync(Input.Name, Input.Email, Input.Password);
+        if (!success)
         {
-            ErrorMessage = "Passwords do not match.";
+            ErrorMessage = "Email already in use.";
             return Page();
         }
-
-        // TODO: Save user into database here
-        // For now simulate success
 
         return RedirectToPage("/Auth/Login");
     }
@@ -48,8 +52,8 @@ public class RegisterModel : PageModel
         public string Password { get; set; } = "";
 
         [Required]
+        [Compare("Password", ErrorMessage = "Passwords do not match.")]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm Password")]
         public string ConfirmPassword { get; set; } = "";
     }
 }
