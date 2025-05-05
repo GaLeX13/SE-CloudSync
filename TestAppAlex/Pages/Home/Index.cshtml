@@ -1,0 +1,66 @@
+﻿@page "/Home/Index"
+@model HomeModel
+@{
+    ViewData["Title"] = "Your Files - CloudSync";
+}
+
+<div class="home-container">
+    <div class="home-header">
+        <h1>Your Files</h1>
+        <button class="upload-btn">Upload New File</button>
+    </div>
+
+    <div class="file-grid">
+        <div class="file-card">📄 File1.txt</div>
+        <div class="file-card">📷 Photo.jpg</div>
+        <div class="file-card">📚 Notes.docx</div>
+        <!-- Later: this will be dynamically loaded from DB -->
+    </div>
+</div>
+
+<style>
+    .home-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .home-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .home-header h1 {
+            color: #0078ff;
+        }
+
+    .upload-btn {
+        background-color: #0078ff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+        .upload-btn:hover {
+            background-color: #005bb5;
+        }
+
+    .file-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 20px;
+    }
+
+    .file-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 20px;
+        text-align: center;
+        border-radius: 10px;
+        box-shadow: 0px 0px 8px rgba(0, 120, 255, 0.1);
+    }
+</style>
