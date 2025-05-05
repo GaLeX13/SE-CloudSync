@@ -1,10 +1,25 @@
-﻿@page
+@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    Layout = "_LayoutMinimal";
+    ViewData["Title"] = "Acasă";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to my web application Now with Azure..</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="welcome-wrapper">
+    <div class="welcome-card">
+        <div class="logo-container">
+            <img src="@Url.Content("~/images/logo.png")" class="logo" />
+            <h1 class="logo-text">CloudSync</h1>
+        </div>
+
+        <p class="intro-text">
+            CloudSync este un serviciu personal de stocare în cloud, unde poți încărca, vizualiza și organiza fișierele tale în siguranță.
+            Se pare că încă nu ești logat. Creează un cont sau loghează-te într-unul existent pentru a începe încărcarea de fișiere.
+        </p>
+
+        <div class="button-group">
+            <a class="action-button" asp-page="/Auth/Login">Login</a>
+            <a class="action-button" asp-page="/Auth/Register">Register</a>
+        </div>
+    </div>
 </div>

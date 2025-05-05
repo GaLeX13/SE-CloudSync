@@ -1,31 +1,172 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+    background: linear-gradient(135deg, #e6f0ff, #ffffff);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+footer {
+    text-align: center;
+    color: #777;
+    font-size: 0.9rem;
+    margin-top: auto;
+    padding: 10px 0;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.welcome-wrapper {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.welcome-card {
+    background-color: #ffffff;
+    padding: 24px 36px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+}
+
+.intro-text {
+    font-size: 1.1rem;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.welcome-container {
+    text-align: center;
+    padding: 100px 20px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+    animation: slideIn 1s ease-out;
+}
+
+.logo {
+    width: 100px; 
+    height: auto;
+    animation: floatIn 1s ease-out;
+}
+
+.logo-text {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #0a3d62;
+    opacity: 0;
+    animation: fadeInText 1s ease-out 1s forwards;
+}
+
+.intro-text {
+    font-size: 1.2rem;
+    color: #333;
+    max-width: 600px;
+    margin: 0 auto 40px auto;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.action-button {
+    padding: 12px 24px;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+    .action-button:hover {
+        background-color: #1f6392;
+    }
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-icon {
+    height: 36px;
+}
+
+.navbar-brand {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #0a3d62;
+    text-decoration: none;
+}
+
+.navbar-links a {
+    margin-left: 20px;
+    font-weight: 500;
+    color: #2980b9;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+    .navbar-links a:hover {
+        color: #14527c;
+    }
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-80px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInText {
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 600px) {
+    .logo {
+        width: 60px;
+    }
+
+    .logo-text {
+        font-size: 2rem;
+    }
+
+    .intro-text {
+        font-size: 1rem;
+    }
 }
