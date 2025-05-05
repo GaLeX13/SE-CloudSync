@@ -1,26 +1,25 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
 
 name: CD Pipeline - se-lab-testapp-005-alex
 
 on:
   push:
     branches:
-      - '**'  # Trigger on push to any branch
-  pull_request:   # Also trigger on PRs
+      - '**'
+  pull_request:
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read  # Required for actions/checkout
+      contents: read
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
@@ -28,17 +27,17 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore "${{ github.workspace }}/TestAppAlex/TestAppAlex.csproj"
 
-      - name: Build with dotnet
+      - name: Build project
         run: dotnet build "${{ github.workspace }}/TestAppAlex/TestAppAlex.csproj" --configuration Release --no-restore
 
-      - name: dotnet publish
-        run: dotnet publish "${{ github.workspace }}/TestAppAlex/TestAppAlex.csproj" -c Release -o "${{ github.workspace }}/published-app" --no-build
+      - name: Publish project
+        run: dotnet publish "${{ github.workspace }}/TestAppAlex/TestAppAlex.csproj" --configuration Release --output "${{ github.workspace }}/publish" --no-build
 
-      - name: Upload artifact for deployment job
+      - name: Upload published app
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: "${{ github.workspace }}/published-app"
+          path: "${{ github.workspace }}/publish"
 
   deploy:
     runs-on: windows-latest
@@ -51,7 +50,7 @@ jobs:
       contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: .net-app
