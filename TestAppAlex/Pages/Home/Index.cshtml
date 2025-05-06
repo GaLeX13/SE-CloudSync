@@ -1,66 +1,62 @@
-﻿@page "/Home/Index"
-@model HomeModel
+﻿@page
+@model IndexModel
 @{
-    ViewData["Title"] = "Your Files - CloudSync";
+    Layout = "_Layout";
+    ViewData["Title"] = "Home";
 }
 
-<div class="home-container">
-    <div class="home-header">
-        <h1>Your Files</h1>
-        <button class="upload-btn">Upload New File</button>
-    </div>
+@section Scripts {
+    <script src="~/js/upload.js"></script>
+}
 
-    <div class="file-grid">
-        <div class="file-card">📄 File1.txt</div>
-        <div class="file-card">📷 Photo.jpg</div>
-        <div class="file-card">📚 Notes.docx</div>
-        <!-- Later: this will be dynamically loaded from DB -->
+<div class="storage-bar-wrapper">
+    <p>Spațiu de stocare folosit: 73%. Dacă rămâi fără spațiu, nu mai poți să creezi, să editezi sau să încarci fișiere.</p>
+    <div class="storage-bar">
+        <div class="storage-fill" style="width: 73%"></div>
     </div>
 </div>
 
-<style>
-    .home-container {
-        max-width: 1100px;
-        margin: 40px auto;
-        padding: 20px;
-    }
+<div class="search-section">
+    <input type="text" placeholder="Caută în fișiere..." class="search-box" />
+    <div class="filter-buttons">
+        <button>📁 Tip</button>
+        <button>👤 Persoane</button>
+        <button>📅 Modificat la</button>
+        <button>📍 Locație</button>
+    </div>
+</div>
 
-    .home-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
+<div class="suggested-sections">
+    <div class="dropdown">
+        <h3>📂 Dosare sugerate</h3>
+        <div class="dropdown-content">
+            
+        </div>
+    </div>
 
-        .home-header h1 {
-            color: #0078ff;
-        }
+    <div class="dropdown">
+        <h3>📄 Fișiere sugerate</h3>
 
-    .upload-btn {
-        background-color: #0078ff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-    }
+        
+        <div class="sort-buttons">
+            <button onclick="setSortMode('name')">📄 Nume</button>
+            <button onclick="setSortMode('date')">🕒 Dată</button>
+            <button onclick="setSortMode('size')">📦 Dimensiune</button>
+        </div>
 
-        .upload-btn:hover {
-            background-color: #005bb5;
-        }
+        <div class="dropdown-content">
+            
+        </div>
+    </div>
+</div>
 
-    .file-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 20px;
-    }
+<div class="upload-area" id="uploadArea">
+    <label for="fileInput" class="upload-label">
+        <div class="upload-icon">⬆</div>
+        <div>Încarcă fișiere</div>
+        <div class="drop-hint">sau trage fișierele aici pentru a le urca rapid</div>
+    </label>
+    <input type="file" id="fileInput" multiple hidden />
+</div>
 
-    .file-card {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        padding: 20px;
-        text-align: center;
-        border-radius: 10px;
-        box-shadow: 0px 0px 8px rgba(0, 120, 255, 0.1);
-    }
-</style>
+<ul id="fileList"></ul>

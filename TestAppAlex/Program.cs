@@ -2,23 +2,35 @@ using TestAppAlex.Data;
 using TestAppAlex.Repositories;
 using TestAppAlex.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Razor Pages + DbContext
+// Razor Pages & Controllers
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
 
+// DB context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register Repositories and Services
+// Dependency injection
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+builder.Services.AddScoped<IFileRepository, FileRepository>();
+builder.Services.AddScoped<IFileService, FileService>();
+
+
+builder.Services.AddAuthentication("MyCookieAuth")
+    .AddCookie("MyCookieAuth", options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/AccessDenied";
+    });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -26,10 +38,17 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
+
+
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets(); // if you're using this extension
-app.MapRazorPages().WithStaticAssets(); // serve Razor Pages
+
+app.MapStaticAssets();
+app.MapRazorPages().WithStaticAssets();
+app.MapControllers(); // For UploadController
 
 app.Run();
