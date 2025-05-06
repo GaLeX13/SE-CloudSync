@@ -1,6 +1,7 @@
+/* === General === */
 body {
     background: linear-gradient(135deg, #e6f0ff, #ffffff);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI Emoji', 'Segoe UI Symbol', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
     min-height: 100vh;
@@ -16,15 +17,13 @@ footer {
     padding: 10px 0;
 }
 
+/* === Welcome Page === */
 .welcome-wrapper {
     flex-grow: 1;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding-top: 60px;
-    padding-bottom: 60px;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 60px 20px;
 }
 
 .welcome-card {
@@ -38,16 +37,11 @@ footer {
 }
 
 .intro-text {
-    font-size: 1.1rem;
-    color: #444;
+    font-size: 1.2rem;
+    color: #333;
+    max-width: 600px;
+    margin: 0 auto 40px auto;
     line-height: 1.6;
-    margin-bottom: 32px;
-}
-
-.welcome-container {
-    text-align: center;
-    padding: 100px 20px;
-    font-family: 'Segoe UI', sans-serif;
 }
 
 .logo-container {
@@ -60,7 +54,7 @@ footer {
 }
 
 .logo {
-    width: 100px; 
+    width: 100px;
     height: auto;
     animation: floatIn 1s ease-out;
 }
@@ -71,13 +65,6 @@ footer {
     color: #0a3d62;
     opacity: 0;
     animation: fadeInText 1s ease-out 1s forwards;
-}
-
-.intro-text {
-    font-size: 1.2rem;
-    color: #333;
-    max-width: 600px;
-    margin: 0 auto 40px auto;
 }
 
 .button-group {
@@ -101,6 +88,7 @@ footer {
         background-color: #1f6392;
     }
 
+/* === Navbar === */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -139,6 +127,220 @@ footer {
         color: #14527c;
     }
 
+/* === Storage Bar === */
+.storage-bar-wrapper {
+    background-color: #e0f0ff;
+    padding: 0.5rem 2rem;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.storage-bar {
+    height: 8px;
+    border-radius: 10px;
+    background-color: #d2e3f8;
+    margin: 0.5rem auto;
+    width: 60%;
+}
+
+.storage-fill {
+    height: 100%;
+    background-color: #007bff;
+    border-radius: 10px;
+}
+
+/* === Search Section === */
+.search-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 2rem auto;
+}
+
+.search-box {
+    width: 60%;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+    .filter-buttons button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .filter-buttons button:hover {
+            background-color: #005fc0;
+        }
+
+/* === Suggested Files and Folders === */
+.suggested-sections {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    width: 85%;
+    margin: 2rem auto;
+    flex-wrap: wrap;
+}
+
+.dropdown {
+    flex: 1;
+    background-color: #f8fbff;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+    min-width: 300px;
+    max-width: 500px;
+}
+
+.dropdown-content {
+    margin-top: 10px;
+    border-top: 1px solid #cce4ff;
+    padding-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    max-height: 320px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #e6f0ff;
+}
+
+/* === Upload Area === */
+.upload-area {
+    border: 2px dashed #007bff;
+    border-radius: 12px;
+    padding: 2rem;
+    background: #f0f8ff80;
+    width: 60%;
+    margin: 3rem auto;
+    text-align: center;
+}
+
+.upload-label {
+    cursor: pointer;
+    display: block;
+}
+
+.upload-icon {
+    font-size: 2rem;
+    color: #007bff;
+}
+
+.drop-hint {
+    font-size: 0.9rem;
+    color: #777;
+    margin-top: 0.5rem;
+}
+
+/* === File Cards === */
+.file-card {
+    background: #fff;
+    border: 1px solid #d0e6f9;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 180px;
+    height: 140px;
+    transition: transform 0.2s ease;
+}
+
+    .file-card:hover {
+        transform: translateY(-2px);
+    }
+
+.file-icon {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+.file-name {
+    font-weight: 600;
+    color: #0a3d62;
+    overflow-wrap: anywhere;
+    margin-bottom: 4px;
+}
+
+.file-size {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.2;
+}
+
+.file-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.download-btn,
+.delete-btn {
+    font-family: 'Segoe UI Emoji', 'Segoe UI Symbol', 'Segoe UI';
+    font-size: 1.3rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #000;
+    transition: transform 0.2s ease;
+}
+
+    .download-btn:hover,
+    .delete-btn:hover {
+        transform: scale(1.2);
+        color: #007bff;
+    }
+
+.sort-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+    .sort-buttons button {
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .sort-buttons button:hover {
+            background-color: #e0e0e0;
+        }
+
+/* === Animations === */
 @keyframes slideIn {
     from {
         transform: translateX(-80px);
@@ -157,6 +359,7 @@ footer {
     }
 }
 
+/* === Responsive === */
 @media (max-width: 600px) {
     .logo {
         width: 60px;
@@ -168,5 +371,22 @@ footer {
 
     .intro-text {
         font-size: 1rem;
+    }
+
+    .search-box {
+        width: 90%;
+    }
+
+    .upload-area {
+        width: 90%;
+    }
+
+    .suggested-sections {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dropdown {
+        width: 90%;
     }
 }
