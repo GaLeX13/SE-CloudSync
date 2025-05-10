@@ -61,5 +61,12 @@ namespace TestAppAlex.Services
                 .Where(f => f.UserId == userId)
                 .SumAsync(f => (long?)f.FileSize) ?? 0;
         }
+        
+        public async Task UpdateFileAsync(FileItem file)
+        {
+            _context.Files.Update(file);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
