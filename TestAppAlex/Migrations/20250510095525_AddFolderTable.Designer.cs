@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TestAppAlex.Data;
 
@@ -10,9 +11,11 @@ using TestAppAlex.Data;
 namespace TestAppAlex.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250510095525_AddFolderTable")]
+    partial class AddFolderTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -34,9 +37,6 @@ namespace TestAppAlex.Migrations
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("FolderId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("TEXT");
 
@@ -45,8 +45,6 @@ namespace TestAppAlex.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FolderId");
 
                     b.ToTable("Files");
                 });
@@ -94,21 +92,6 @@ namespace TestAppAlex.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("TestAppAlex.Models.FileItem", b =>
-                {
-                    b.HasOne("TestAppAlex.Models.Folder", "Folder")
-                        .WithMany("Files")
-                        .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Folder");
-                });
-
-            modelBuilder.Entity("TestAppAlex.Models.Folder", b =>
-                {
-                    b.Navigation("Files");
                 });
 #pragma warning restore 612, 618
         }

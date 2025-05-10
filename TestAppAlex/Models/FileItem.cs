@@ -17,6 +17,8 @@ namespace TestAppAlex.Models
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
         
         public string UserId { get; set; } = string.Empty;
+        public int? FolderId { get; set; }
+        public Folder? Folder { get; set; }
 
     }
 }

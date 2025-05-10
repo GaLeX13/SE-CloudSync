@@ -1,73 +1,189 @@
-﻿document.getElementById('fileInput').addEventListener('change', function (e) {
-    const files = e.target.files;
-    uploadFiles(files);
-});
-
-document.getElementById('uploadArea').addEventListener('drop', function (e) {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    uploadFiles(files);
-});
-
-document.getElementById('uploadArea').addEventListener('dragover', function (e) {
-    e.preventDefault();
-});
+﻿// === upload.js ===
 
 let sortMode = 'date';
+let selectedFiles = new Set();
 
 function setSortMode(mode) {
     sortMode = mode;
     loadSuggestedFiles();
 }
 
-function uploadFiles(files) {
-    const fileList = document.getElementById('fileList');
-    fileList.innerHTML = '';
-
-    Array.from(files).forEach(file => {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        fetch('/api/upload/file', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                const li = document.createElement('li');
-                li.classList.add('file-card');
-
-                li.innerHTML = `
-                <div class="file-icon">${getFileIcon(data.name)}</div>
-                <div class="file-details">
-                    <div class="file-name" title="${data.name}">${truncateName(data.name, 25)}</div>
-                    <div class="file-size">${formatFileSize(data.size)}</div>
-                </div>
-                <div class="file-actions">
-                    <a href="/api/upload/download?fileName=${encodeURIComponent(data.name)}" class="download-btn" title="Descarcă" download>⬇</a>
-                    <button class="delete-btn" onclick="deleteFile('${data.name}')">🗑</button>
-                </div>
-            `;
-
-                fileList.appendChild(li);
-                loadSuggestedFiles();
-            })
-            .catch(error => {
-                console.error('Upload error:', error);
-                alert('A apărut o eroare la încărcare. Verifică dacă ești logat.');
-            });
+function toggleSelectAll(masterCheckbox) {
+    const checkboxes = document.querySelectorAll('.file-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = masterCheckbox.checked;
+        const fileName = cb.closest('.file-card').querySelector('.file-name').title;
+        if (masterCheckbox.checked) selectedFiles.add(fileName);
+        else selectedFiles.delete(fileName);
     });
+    updateMassActionButtons();
+}
+
+function toggleFileSelection(fileName, checkbox) {
+    if (checkbox.checked) {
+        selectedFiles.add(fileName);
+    } else {
+        selectedFiles.delete(fileName);
+    }
+    updateMassActionButtons();
+}
+
+function updateMassActionButtons() {
+    const container = document.getElementById("bulkActions");
+    if (!container) return;
+
+    container.style.display = selectedFiles.size > 0 ? "block" : "none";
+}
+
+function massDownload() {
+    if (!selectedFiles.size) return alert("N-ai selectat fișiere.");
+
+    const filesArray = Array.from(selectedFiles);
+
+    fetch('/api/upload/download-multiple', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filesArray)
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Eroare la descărcarea fișierelor.");
+            return res.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'files.zip';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(err => {
+            alert("Eroare la descărcarea fișierelor.");
+            console.error(err);
+        });
+}
+
+
+function massDelete() {
+    if (!selectedFiles.size) return alert("N-ai selectat fișiere.");
+    if (!confirm("Sigur vrei să ștergi fișierele selectate?")) return;
+
+    const filesArray = Array.from(selectedFiles);
+
+    fetch('/api/upload/delete-multiple', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filesArray)
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Eroare la ștergerea fișierelor.");
+            return res.text();
+        })
+        .then(() => {
+            selectedFiles.clear();
+            loadSuggestedFiles();
+            updateMassActionButtons();
+        })
+        .catch(err => {
+            alert("Eroare la ștergerea fișierelor.");
+            console.error(err);
+        });
+}
+
+
+function moveSelected() {
+    alert("Funcționalitatea de mutare în dosar urmează să fie implementată.");
+}
+
+function createFolder() {
+    const folderName = prompt("Nume pentru folder:");
+    if (!folderName || folderName.trim() === "") return;
+
+    fetch('/api/upload/create-folder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folderName })
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Eroare la creare sau duplicat.");
+            return res.json();
+        })
+        .then(folder => {
+            alert(`Folder "${folder.name}" creat cu succes!`);
+            loadFolders();
+        })
+        .catch(err => alert(err.message));
+}
+
+function loadFolders() {
+    const container = document.querySelector('#foldersSection .dropdown-content');
+    if (!container) return;
+
+    fetch('/api/upload/folders')
+        .then(res => res.json())
+        .then(folders => {
+            container.innerHTML = "";
+
+            if (folders.length === 0) {
+                container.innerHTML = `<p id="noFoldersText">You do not have any folders</p>`;
+                return;
+            }
+
+            folders.forEach(f => {
+                const div = document.createElement('div');
+                div.classList.add('file-card');
+
+                div.innerHTML = `
+                    <div class="file-icon">📁</div>
+                    <div class="file-details">
+                        <div class="file-name" title="${f.name}" onclick="openFolder(${f.id}, '${f.name.replace(/'/g, "\\'")}')" style="cursor: pointer; color: #007bff;">
+                            ${truncateName(f.name, 25)}
+                        </div>
+                        <div class="file-size">Creat la: ${new Date(f.createdAt).toLocaleString()}</div>
+                    </div>
+                    <div class="file-actions">
+                        <a href="/api/upload/download-folder?id=${f.id}" title="Descarcă folderul" class="download-btn">⬇</a>
+                        <button class="delete-btn" onclick="deleteFolder(${f.id})">🗑</button>
+                    </div>
+                `;
+
+                container.appendChild(div);
+            });
+        })
+        .catch(err => {
+            console.error("Eroare la încărcarea folderelor:", err);
+        });
+}
+
+
+function deleteFolder(folderId) {
+    if (!confirm("Sigur vrei să ștergi acest folder?")) return;
+
+    fetch(`/api/upload/delete-folder?id=${folderId}`, { method: 'DELETE' })
+        .then(res => {
+            if (res.ok) {
+                loadFolders();
+            } else {
+                alert("Eroare la ștergerea folderului.");
+            }
+        })
+        .catch(err => console.error("Delete folder error:", err));
 }
 
 function loadSuggestedFiles() {
     fetch('/api/upload/list')
         .then(response => response.json())
         .then(files => {
-            if (window.sortMode === 'name') {
+            // 👇 NU mai filtra după folderId!
+            // files = files.filter(f => f.folderId == null);
+
+            if (sortMode === 'name') {
                 files.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (window.sortMode === 'date') {
+            } else if (sortMode === 'date') {
                 files.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-            } else if (window.sortMode === 'size') {
+            } else if (sortMode === 'size') {
                 files.sort((a, b) => b.size - a.size);
             }
 
@@ -75,9 +191,6 @@ function loadSuggestedFiles() {
             container.innerHTML = '';
 
             files.forEach(file => {
-                const div = document.createElement('div');
-                div.classList.add('file-card');
-
                 const uploadDate = new Date(file.uploadedAt).toLocaleString();
                 const ext = file.name.split('.').pop().toLowerCase();
                 let preview = '';
@@ -88,83 +201,62 @@ function loadSuggestedFiles() {
                     preview = `<iframe src="/uploads/${encodeURIComponent(file.name)}" class="preview-pdf"></iframe>`;
                 }
 
-                div.innerHTML = `
-                    <div class="file-icon">${getFileIcon(file.name)}</div>
-                    <div class="file-details">
-                <div class="file-name" title="${file.name}" onclick="openPreview('${file.name}')" style="cursor:pointer; color:#007bff;">
-                ${truncateName(file.name, 25)}
-                </div>
+                const isChecked = selectedFiles.has(file.name) ? 'checked' : '';
+                const folderInfo = file.folderId ? `<div class="in-folder-tag">📁 în folder</div>` : '';
 
-                        <div class="file-size">${formatFileSize(file.size)} · ${uploadDate}</div>
-                        ${preview}
-                    </div>
-                    <div class="file-actions">
-                        <a href="/api/upload/download?fileName=${encodeURIComponent(file.name)}"
-                           class="download-btn" title="Descarcă" download>⬇</a>
-                        <button class="delete-btn" onclick="deleteFile('${file.name}')">🗑</button>
-                        <button class="rename-btn" onclick="renameFile('${file.name}')">📝</button>
-                    </div>
-                `;
+                const div = document.createElement('div');
+                div.classList.add('file-card');
+                div.innerHTML = `
+        <input type="checkbox" class="file-checkbox" onchange="toggleFileSelection('${file.name}', this)" ${isChecked}>
+        <div class="file-icon">${getFileIcon(file.name)}</div>
+        <div class="file-details">
+            <div class="file-name" title="${file.name}" onclick="openPreview('${file.name}')" style="cursor:pointer; color:#007bff;">
+                ${truncateName(file.name, 25)}
+            </div>
+            <div class="file-size">${formatFileSize(file.size)} · ${uploadDate}</div>
+            ${folderInfo}
+            ${preview}
+        </div>
+        <div class="file-actions">
+            <a href="/api/upload/download?fileName=${encodeURIComponent(file.name)}" class="download-btn" title="Descarcă" download>⬇</a>
+            <button class="delete-btn" onclick="deleteFile('${file.name}')">🗑</button>
+            <button class="rename-btn" onclick="renameFile('${file.name}')">📝</button>
+        </div>
+    `;
                 container.appendChild(div);
             });
+
+
+            updateMassActionButtons();
         })
         .catch(error => {
             console.error('Failed to load files:', error);
         });
 }
 
-function renameFile(oldFileName) {
-    const newFileName = prompt("Introduceți noul nume pentru fișier:");
-    if (!newFileName || newFileName.trim() === "") return;
+// ✅ Adaugam functia renameFile care lipsea (sau nu functiona)
+function renameFile(oldName) {
+    const newName = prompt("Noul nume pentru fișier:", oldName);
+    if (!newName || newName.trim() === "" || newName === oldName) return;
 
     fetch('/api/upload/rename', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            oldFileName: oldFileName,
-            newFileName: newFileName
-        })
-    })
-        .then(response => {
-            if (response.ok) {
-                loadSuggestedFiles();
-            } else if (response.status === 409) {
-                alert("Un fișier cu acest nume există deja.");
-            } else {
-                alert("Redenumirea a eșuat.");
-            }
-        });
-}
-
-function deleteFile(fileName) {
-    if (!confirm(`Sigur vrei să ștergi fișierul "${fileName}"?`)) return;
-
-    fetch(`/api/upload/delete?fileName=${encodeURIComponent(fileName)}`, {
-        method: 'DELETE'
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oldFileName: oldName, newFileName: newName })
     })
         .then(res => {
-            if (res.ok) {
-                loadSuggestedFiles();
-                document.getElementById('fileList').innerHTML = '';
-            } else {
-                alert("Eroare la ștergerea fișierului.");
-            }
+            if (!res.ok) throw new Error("Eroare la redenumire.");
+            return res.text();
+        })
+        .then(() => {
+            alert("Fișier redenumit cu succes!");
+            loadSuggestedFiles();
+            if (currentFolderId !== null) openFolder(currentFolderId, currentFolderName); // update și folder dacă e deschis
         })
         .catch(err => {
-            console.error("Delete error:", err);
+            alert("Redenumirea a eșuat.");
+            console.error(err);
         });
-}
-
-function getFileIcon(fileName) {
-    const ext = fileName.split('.').pop().toLowerCase();
-    if (['png', 'jpg', 'jpeg', 'gif'].includes(ext)) return '🖼';
-    if (['pdf'].includes(ext)) return '📄';
-    if (['doc', 'docx'].includes(ext)) return '📝';
-    if (['xls', 'xlsx'].includes(ext)) return '📊';
-    if (['zip', 'rar'].includes(ext)) return '🗜';
-    return '📁';
 }
 
 function truncateName(name, maxLength) {
@@ -177,26 +269,14 @@ function formatFileSize(size) {
         : (size / 1024).toFixed(1) + ' KB';
 }
 
-function updateStorageBar() {
-    fetch('/api/upload/storage')
-        .then(response => response.json())
-        .then(data => {
-            const used = data.used;
-            const total = 15 * 1024 * 1024 * 1024; // 15 GB
-            const percent = Math.min((used / total) * 100, 100).toFixed(0);
-
-            const bar = document.querySelector('.storage-fill');
-            const wrapper = document.querySelector('.storage-bar-wrapper');
-
-            if (bar) bar.style.width = `${percent}%`;
-            if (wrapper) {
-                wrapper.innerHTML = `
-                    Spațiu de stocare folosit: ${percent}%. Dacă rămâi fără spațiu, nu mai poți să creezi, să editezi sau să încarci fișiere.
-                    <div class="storage-bar"><div class="storage-fill" style="width: ${percent}%;"></div></div>
-                `;
-            }
-        })
-        .catch(err => console.error("Nu s-a putut actualiza bara de stocare:", err));
+function getFileIcon(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    if (['png', 'jpg', 'jpeg', 'gif'].includes(ext)) return '🖼';
+    if (['pdf'].includes(ext)) return '📄';
+    if (['doc', 'docx'].includes(ext)) return '📝';
+    if (['xls', 'xlsx'].includes(ext)) return '📊';
+    if (['zip', 'rar'].includes(ext)) return '🗜';
+    return '📁';
 }
 
 function openPreview(fileName) {
@@ -219,7 +299,222 @@ function closePreview() {
     document.getElementById("previewContent").innerHTML = "";
 }
 
+function closeFolderModal() {
+    document.getElementById("folderModal").style.display = "none";
+    document.getElementById("folderFilesContent").innerHTML = "";
+}
+
+function moveSelected() {
+    fetch('/api/upload/folders')
+        .then(res => res.json())
+        .then(folders => {
+            if (!folders.length) return alert("Nu ai foldere create.");
+
+            const folderId = prompt("ID-ul folderului în care vrei să muți fișierele:\n" +
+                folders.map(f => `${f.id} - ${f.name}`).join("\n"));
+
+            if (!folderId) return;
+
+            const body = {
+                folderId: parseInt(folderId),
+                fileNames: Array.from(selectedFiles)
+            };
+
+            fetch('/api/upload/move-to-folder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Eroare la mutare.");
+                    return res.text();
+                })
+                .then(() => {
+                    alert("Fișierele au fost mutate.");
+                    selectedFiles.clear();
+                    loadSuggestedFiles();
+                    updateMassActionButtons();
+                })
+                .catch(err => alert(err.message));
+        });
+}
+
+let selectedFolderFiles = new Set();
+
+function toggleFolderSelectAll(master) {
+    document.querySelectorAll(".folder-file-checkbox").forEach(cb => {
+        cb.checked = master.checked;
+        const name = cb.dataset.filename;
+        if (master.checked) selectedFolderFiles.add(name);
+        else selectedFolderFiles.delete(name);
+    });
+    updateFolderMassActionButtons();
+}
+
+function toggleFolderFileSelection(cb) {
+    const name = cb.dataset.filename;
+    if (cb.checked) selectedFolderFiles.add(name);
+    else selectedFolderFiles.delete(name);
+    updateFolderMassActionButtons();
+}
+
+function updateFolderMassActionButtons() {
+    const bar = document.getElementById("folderBulkActions");
+    if (bar) bar.style.display = selectedFolderFiles.size > 0 ? "block" : "none";
+}
+
+function folderMassDownload() {
+    selectedFolderFiles.forEach(fileName => {
+        const a = document.createElement('a');
+        a.href = `/api/upload/download?fileName=${encodeURIComponent(fileName)}`;
+        a.download = fileName;
+        a.click();
+    });
+    selectedFolderFiles.clear();
+    updateFolderMassActionButtons();
+}
+
+function folderMassDelete() {
+    if (!confirm("Ștergi fișierele selectate din folder?")) return;
+
+    const promises = Array.from(selectedFolderFiles).map(file =>
+        fetch(`/api/upload/delete?fileName=${encodeURIComponent(file)}`, { method: 'DELETE' })
+    );
+
+    Promise.all(promises)
+        .then(() => {
+            selectedFolderFiles.clear();
+            closeFolderModal();
+            setTimeout(() => openFolder(currentFolderId, currentFolderName), 300); // reload după ștergere
+        });
+}
+
+document.getElementById('fileInput')?.addEventListener('change', async function () {
+    const files = this.files;
+    if (!files.length) return;
+
+    let allFailed = true;
+
+    for (let file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/upload/file', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!res.ok) {
+                const text = await res.text();
+                console.warn(`Upload failed for ${file.name}:`, res.status, text);
+                continue;
+            }
+
+            const contentType = res.headers.get("Content-Type") || "";
+            const data = contentType.includes("application/json")
+                ? await res.json()
+                : { name: file.name };
+
+            console.log("Fișier urcat:", data.name);
+            allFailed = false;
+        } catch (err) {
+            console.error(`Eroare la fișierul ${file.name}:`, err);
+        }
+    }
+
+    loadSuggestedFiles();
+    updateStorageBar?.();
+
+    if (allFailed) {
+        alert("Toate fișierele au eșuat la upload.");
+    }
+
+    this.value = "";
+});
+
+
+// Pentru reîncărcare după delete
+let currentFolderId = null;
+let currentFolderName = "";
+function openFolder(folderId, folderName) {
+    const title = document.getElementById("folderModalTitle");
+    const content = document.getElementById("folderFilesContent");
+    title.textContent = `📁 ${folderName}`;
+    content.innerHTML = "Se încarcă...";
+
+    fetch(`/api/upload/folder-files?id=${folderId}`)
+        .then(res => res.json())
+        .then(files => {
+            if (!files.length) {
+                content.innerHTML = "<p>Acest folder este gol.</p>";
+                return;
+            }
+
+            content.innerHTML = `
+                <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 10px;">
+                    <input type="checkbox" id="folderSelectAll" onchange="toggleFolderSelectAll(this)" />
+                    Selectează toate fișierele
+                </label>
+                <div id="folderBulkActions" style="display:none; margin-bottom: 10px;">
+                    <button onclick="folderMassDownload()">⬇</button>
+                    <button onclick="folderMassDelete()">🗑</button>
+                </div>
+            `;
+
+            files.forEach(file => {
+                const fileEl = document.createElement("div");
+                fileEl.classList.add("file-card");
+                const uploadDate = new Date(file.uploadedAt).toLocaleString();
+
+                fileEl.innerHTML = `
+                    <input type="checkbox" class="folder-file-checkbox" data-filename="${file.name}" onchange="toggleFolderFileSelection(this)">
+                    <div class="file-icon">${getFileIcon(file.name)}</div>
+                    <div class="file-details">
+                        <div class="file-name">${truncateName(file.name, 25)}</div>
+                        <div class="file-size">${formatFileSize(file.size)} · ${uploadDate}</div>
+                    </div>
+                    <div class="file-actions">
+                        <a href="/api/upload/download?fileName=${encodeURIComponent(file.name)}" class="download-btn" title="Descarcă" download>⬇</a>
+                        <button class="delete-btn" onclick="deleteFile('${file.name}', true)">🗑</button>
+                    </div>
+                `;
+
+                content.appendChild(fileEl);
+            });
+        })
+        .catch(err => {
+            content.innerHTML = "<p>Eroare la încărcarea fișierelor.</p>";
+        });
+
+    document.getElementById("folderModal").style.display = "block";
+}
+
+function deleteFile(fileName, isInFolder = false) {
+    if (!confirm(`Sigur vrei să ștergi fișierul ${fileName}?`)) return;
+
+    fetch(`/api/upload/delete?fileName=${encodeURIComponent(fileName)}`, {
+        method: 'DELETE'
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Eroare la ștergere.");
+            if (isInFolder) {
+                // 🔁 Reîncarcă folderul activ
+                closeFolderModal();
+                setTimeout(() => openFolder(currentFolderId, currentFolderName), 300);
+            } else {
+                loadSuggestedFiles();
+            }
+        })
+        .catch(err => {
+            alert("A apărut o eroare la ștergere.");
+            console.error(err);
+        });
+}
+
+
 window.addEventListener('DOMContentLoaded', () => {
     loadSuggestedFiles();
-    updateStorageBar();
+    loadFolders();
+    updateStorageBar?.();
 });

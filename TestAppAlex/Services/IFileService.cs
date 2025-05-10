@@ -14,5 +14,14 @@ namespace TestAppAlex.Services
         Task<IEnumerable<FileItem>> GetFilesByUserAsync(string userId);
         Task<long> GetUsedStorageByUserAsync(string userId);
         Task UpdateFileAsync(FileItem file);
+        Task<List<Folder>> GetFoldersByUserAsync(string userId);
+        Task<Folder> CreateFolderAsync(string userId, string folderName);
+        Task<Folder?> GetFolderByIdAsync(int id);
+        Task DeleteFolderAsync(Folder folder);
+        Task<IEnumerable<FileItem>> GetFilesByFolderAsync(string userId, int folderId);
+        Task UpdateFilesAsync(IEnumerable<FileItem> files);
+        Task<bool> DeleteFilesAsync(List<string> fileNames);
+
+
     }
 }
