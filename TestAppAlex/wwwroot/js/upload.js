@@ -20,7 +20,6 @@ function setSortMode(mode) {
     loadSuggestedFiles();
 }
 
-
 function uploadFiles(files) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '';
@@ -39,16 +38,16 @@ function uploadFiles(files) {
                 li.classList.add('file-card');
 
                 li.innerHTML = `
-                    <div class="file-icon">${getFileIcon(data.name)}</div>
-                    <div class="file-details">
-                        <div class="file-name" title="${data.name}">${truncateName(data.name, 25)}</div>
-                        <div class="file-size">${formatFileSize(data.size)}</div>
-                    </div>
-                    <div class="file-actions">
-                        <a href="/api/upload/download?fileName=${encodeURIComponent(data.name)}" class="download-btn" title="Descarcă" download>⬇</a>
-                        <button class="delete-btn" onclick="deleteFile('${data.name}')">🗑</button>
-                    </div>
-                `;
+                <div class="file-icon">${getFileIcon(data.name)}</div>
+                <div class="file-details">
+                    <div class="file-name" title="${data.name}">${truncateName(data.name, 25)}</div>
+                    <div class="file-size">${formatFileSize(data.size)}</div>
+                </div>
+                <div class="file-actions">
+                    <a href="/api/upload/download?fileName=${encodeURIComponent(data.name)}" class="download-btn" title="Descarcă" download>⬇</a>
+                    <button class="delete-btn" onclick="deleteFile('${data.name}')">🗑</button>
+                </div>
+            `;
 
                 fileList.appendChild(li);
                 loadSuggestedFiles();
@@ -60,12 +59,10 @@ function uploadFiles(files) {
     });
 }
 
-
 function loadSuggestedFiles() {
     fetch('/api/upload/list')
         .then(response => response.json())
         .then(files => {
-            // Aplicăm sortare, dacă este setat un mod de sortare
             if (window.sortMode === 'name') {
                 files.sort((a, b) => a.name.localeCompare(b.name));
             } else if (window.sortMode === 'date') {
@@ -82,17 +79,30 @@ function loadSuggestedFiles() {
                 div.classList.add('file-card');
 
                 const uploadDate = new Date(file.uploadedAt).toLocaleString();
+                const ext = file.name.split('.').pop().toLowerCase();
+                let preview = '';
+
+                if (['png', 'jpg', 'jpeg', 'gif'].includes(ext)) {
+                    preview = `<img src="/uploads/${encodeURIComponent(file.name)}" class="preview-thumb" alt="preview" />`;
+                } else if (ext === 'pdf') {
+                    preview = `<iframe src="/uploads/${encodeURIComponent(file.name)}" class="preview-pdf"></iframe>`;
+                }
 
                 div.innerHTML = `
                     <div class="file-icon">${getFileIcon(file.name)}</div>
                     <div class="file-details">
-                        <div class="file-name" title="${file.name}">${truncateName(file.name, 25)}</div>
+                <div class="file-name" title="${file.name}" onclick="openPreview('${file.name}')" style="cursor:pointer; color:#007bff;">
+                ${truncateName(file.name, 25)}
+                </div>
+
                         <div class="file-size">${formatFileSize(file.size)} · ${uploadDate}</div>
+                        ${preview}
                     </div>
                     <div class="file-actions">
                         <a href="/api/upload/download?fileName=${encodeURIComponent(file.name)}"
                            class="download-btn" title="Descarcă" download>⬇</a>
                         <button class="delete-btn" onclick="deleteFile('${file.name}')">🗑</button>
+                        <button class="rename-btn" onclick="renameFile('${file.name}')">📝</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -103,10 +113,29 @@ function loadSuggestedFiles() {
         });
 }
 
-// Funcție globală pentru a seta modul de sortare și a reîncărca lista
-function setSortMode(mode) {
-    window.sortMode = mode;
-    loadSuggestedFiles();
+function renameFile(oldFileName) {
+    const newFileName = prompt("Introduceți noul nume pentru fișier:");
+    if (!newFileName || newFileName.trim() === "") return;
+
+    fetch('/api/upload/rename', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            oldFileName: oldFileName,
+            newFileName: newFileName
+        })
+    })
+        .then(response => {
+            if (response.ok) {
+                loadSuggestedFiles();
+            } else if (response.status === 409) {
+                alert("Un fișier cu acest nume există deja.");
+            } else {
+                alert("Redenumirea a eșuat.");
+            }
+        });
 }
 
 function deleteFile(fileName) {
@@ -168,6 +197,26 @@ function updateStorageBar() {
             }
         })
         .catch(err => console.error("Nu s-a putut actualiza bara de stocare:", err));
+}
+
+function openPreview(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    const content = document.getElementById("previewContent");
+
+    if (['png', 'jpg', 'jpeg', 'gif'].includes(ext)) {
+        content.innerHTML = `<img src="/uploads/${encodeURIComponent(fileName)}" alt="preview">`;
+    } else if (ext === 'pdf') {
+        content.innerHTML = `<iframe src="/uploads/${encodeURIComponent(fileName)}" width="100%" height="500px"></iframe>`;
+    } else {
+        content.innerHTML = `<p>Previzualizare indisponibilă pentru acest tip de fișier.</p>`;
+    }
+
+    document.getElementById("previewModal").style.display = "block";
+}
+
+function closePreview() {
+    document.getElementById("previewModal").style.display = "none";
+    document.getElementById("previewContent").innerHTML = "";
 }
 
 window.addEventListener('DOMContentLoaded', () => {

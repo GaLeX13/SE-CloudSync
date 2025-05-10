@@ -13,5 +13,6 @@ namespace TestAppAlex.Services
         Task<bool> DeleteFileAsync(string fileName);
         Task<IEnumerable<FileItem>> GetFilesByUserAsync(string userId);
         Task<long> GetUsedStorageByUserAsync(string userId);
+        Task UpdateFileAsync(FileItem file);
     }
 }

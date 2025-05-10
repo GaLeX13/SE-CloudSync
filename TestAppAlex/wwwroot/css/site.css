@@ -340,6 +340,56 @@ footer {
             background-color: #e0e0e0;
         }
 
+.preview-thumb {
+    max-width: 100px;
+    max-height: 100px;
+    margin-top: 5px;
+    border-radius: 8px;
+}
+
+.preview-pdf {
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ccc;
+    margin-top: 5px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.close-btn {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal img, .modal iframe {
+    max-width: 100%;
+    max-height: 70vh;
+    margin-top: 15px;
+    border-radius: 6px;
+}
+
 /* === Animations === */
 @keyframes slideIn {
     from {
