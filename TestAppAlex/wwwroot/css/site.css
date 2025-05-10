@@ -390,6 +390,48 @@ footer {
     border-radius: 6px;
 }
 
+#folderHint {
+    font-family: 'Comic Sans MS', cursive;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+#createFolderBtn {
+    margin-left: 10px;
+    font-size: 18px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    transform: translateY(2px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    #createFolderBtn:hover {
+        background-color: #0056b3;
+    }
+
+.file-select {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+
+.file-checkbox {
+    transform: scale(1.2);
+    accent-color: #007bff;
+}
+
+.file-card {
+    position: relative;
+}
+
 /* === Animations === */
 @keyframes slideIn {
     from {

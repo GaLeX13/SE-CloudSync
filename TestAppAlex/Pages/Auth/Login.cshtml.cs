@@ -45,10 +45,9 @@ public class LoginModel : PageModel
             new Claim(ClaimTypes.Name, user.Name ?? user.Email)
         };
 
-        var identity = new ClaimsIdentity(claims, "MyCookieAuth");
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync("MyCookieAuth", principal);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
         return RedirectToPage("/Home/Index");
     }

@@ -27,26 +27,41 @@
 </div>
 
 <div class="suggested-sections">
-    <div class="dropdown">
-        <h3>📂 Dosare sugerate</h3>
+    <div class="dropdown" id="foldersSection">
+        <h3>
+            📂 Dosare
+            <button id="createFolderBtn" onclick="createFolder()" title="Creează folder">➕</button>
+        </h3>
         <div class="dropdown-content">
-            
+            <p id="folderHint" class="hint-text">Press here to create a new one and add your files here to organize them</p>
+            <p id="noFoldersText">You do not have any folders</p>
         </div>
     </div>
 
     <div class="dropdown">
         <h3>📄 Fișiere sugerate</h3>
 
-        
+        <!-- ✅ Select All Checkbox -->
+        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 10px;">
+            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" />
+            Selectează toate fișierele
+        </label>
+
+        <!-- ✅ Bulk Action Bar -->
+        <div id="bulkActions" style="display:none; margin-bottom: 10px;">
+            <button onclick="massDownload()" title="Descarcă selectate">⬇</button>
+            <button onclick="moveSelected()" title="Mută în folder">📁</button>
+            <button onclick="massDelete()" title="Șterge selectate">🗑</button>
+        </div>
+
         <div class="sort-buttons">
             <button onclick="setSortMode('name')">📄 Nume</button>
             <button onclick="setSortMode('date')">🕒 Dată</button>
             <button onclick="setSortMode('size')">📦 Dimensiune</button>
         </div>
 
-        <div class="dropdown-content">
-            
-        </div>
+        <!-- ✅ Fișiere generate din JS -->
+        <div class="dropdown-content"></div>
     </div>
 </div>
 
@@ -56,6 +71,7 @@
         <div>Încarcă fișiere</div>
         <div class="drop-hint">sau trage fișierele aici pentru a le urca rapid</div>
     </label>
+
     <input type="file" id="fileInput" multiple hidden />
 </div>
 
@@ -63,6 +79,13 @@
     <div class="modal-content">
         <span class="close-btn" onclick="closePreview()">&times;</span>
         <div id="previewContent">Se încarcă...</div>
+    </div>
+</div>
+<div id="folderModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeFolderModal()">&times;</span>
+        <h3 id="folderModalTitle">Fișiere în folder</h3>
+        <div id="folderFilesContent">Se încarcă...</div>
     </div>
 </div>
 
