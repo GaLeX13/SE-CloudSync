@@ -2,6 +2,10 @@
 
 let sortMode = 'date';
 let selectedFiles = new Set();
+let searchTerm = "";
+let activeExtensions = new Set();
+let dateFilter = null;
+let locationFilter = null; // folderId
 
 function setSortMode(mode) {
     sortMode = mode;
@@ -172,13 +176,41 @@ function deleteFolder(folderId) {
         .catch(err => console.error("Delete folder error:", err));
 }
 
-function loadSuggestedFiles() {
+function loadSuggestedFiles(term = searchTerm) {
     fetch('/api/upload/list')
         .then(response => response.json())
         .then(files => {
-            // 👇 NU mai filtra după folderId!
-            // files = files.filter(f => f.folderId == null);
+            const lowerSearch = term.toLowerCase();
+            files = files.filter(f => f.name.toLowerCase().includes(lowerSearch));
 
+            // ✅ Filtru după extensie
+            if (activeExtensions.size > 0) {
+                files = files.filter(f => {
+                    const ext = f.name.split('.').pop().toLowerCase();
+                    return activeExtensions.has(ext);
+                });
+            }
+
+            // ✅ Filtru după dată
+            if (dateFilter) {
+                const now = new Date();
+                files = files.filter(f => {
+                    const uploaded = new Date(f.uploadedAt);
+                    const diffMs = now - uploaded;
+
+                    if (dateFilter === "hour") return diffMs <= 3600 * 1000;
+                    if (dateFilter === "day") return diffMs <= 24 * 3600 * 1000;
+                    if (dateFilter === "week") return diffMs <= 7 * 24 * 3600 * 1000;
+                    return true;
+                });
+            }
+
+            if (locationFilter !== null) {
+                files = files.filter(f => f.folderId === locationFilter);
+            }
+
+
+            // 🔃 Sortare
             if (sortMode === 'name') {
                 files.sort((a, b) => a.name.localeCompare(b.name));
             } else if (sortMode === 'date') {
@@ -187,6 +219,7 @@ function loadSuggestedFiles() {
                 files.sort((a, b) => b.size - a.size);
             }
 
+            // 🧱 Randare
             const container = document.querySelector('.dropdown:nth-of-type(2) .dropdown-content');
             container.innerHTML = '';
 
@@ -207,25 +240,24 @@ function loadSuggestedFiles() {
                 const div = document.createElement('div');
                 div.classList.add('file-card');
                 div.innerHTML = `
-        <input type="checkbox" class="file-checkbox" onchange="toggleFileSelection('${file.name}', this)" ${isChecked}>
-        <div class="file-icon">${getFileIcon(file.name)}</div>
-        <div class="file-details">
-            <div class="file-name" title="${file.name}" onclick="openPreview('${file.name}')" style="cursor:pointer; color:#007bff;">
-                ${truncateName(file.name, 25)}
-            </div>
-            <div class="file-size">${formatFileSize(file.size)} · ${uploadDate}</div>
-            ${folderInfo}
-            ${preview}
-        </div>
-        <div class="file-actions">
-            <a href="/api/upload/download?fileName=${encodeURIComponent(file.name)}" class="download-btn" title="Descarcă" download>⬇</a>
-            <button class="delete-btn" onclick="deleteFile('${file.name}')">🗑</button>
-            <button class="rename-btn" onclick="renameFile('${file.name}')">📝</button>
-        </div>
-    `;
+                    <input type="checkbox" class="file-checkbox" onchange="toggleFileSelection('${file.name}', this)" ${isChecked}>
+                    <div class="file-icon">${getFileIcon(file.name)}</div>
+                    <div class="file-details">
+                        <div class="file-name" title="${file.name}" onclick="openPreview('${file.name}')" style="cursor:pointer; color:#007bff;">
+                            ${truncateName(file.name, 25)}
+                        </div>
+                        <div class="file-size">${formatFileSize(file.size)} · ${uploadDate}</div>
+                        ${folderInfo}
+                        ${preview}
+                    </div>
+                    <div class="file-actions">
+                        <a href="/api/upload/download?fileName=${encodeURIComponent(file.name)}" class="download-btn" title="Descarcă" download>⬇</a>
+                        <button class="delete-btn" onclick="deleteFile('${file.name}')">🗑</button>
+                        <button class="rename-btn" onclick="renameFile('${file.name}')">📝</button>
+                    </div>
+                `;
                 container.appendChild(div);
             });
-
 
             updateMassActionButtons();
         })
@@ -233,6 +265,35 @@ function loadSuggestedFiles() {
             console.error('Failed to load files:', error);
         });
 }
+
+function toggleLocationFilter() {
+    const popup = document.getElementById('locationFilterPopup');
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+
+    if (popup.style.display === 'block') {
+        const list = document.getElementById('locationFolderList');
+        list.innerHTML = "(Se încarcă...)";
+        fetch('/api/upload/folders')
+            .then(res => res.json())
+            .then(folders => {
+                if (!folders.length) {
+                    list.innerHTML = "<p>Nu ai foldere create</p>";
+                    return;
+                }
+
+                list.innerHTML = folders.map(f =>
+                    `<label><input type="radio" name="locFolder" value="${f.id}"> ${f.name}</label><br>`
+                ).join('');
+            });
+    }
+}
+
+function applyLocationFilter() {
+    const selected = document.querySelector('input[name="locFolder"]:checked');
+    locationFilter = selected ? parseInt(selected.value) : null;
+    loadSuggestedFiles();
+}
+
 
 // ✅ Adaugam functia renameFile care lipsea (sau nu functiona)
 function renameFile(oldName) {
@@ -489,6 +550,23 @@ function openFolder(folderId, folderName) {
 
     document.getElementById("folderModal").style.display = "block";
 }
+function updateStorageBar() {
+    fetch('/api/upload/storage')
+        .then(res => res.json())
+        .then(data => {
+            const usedBytes = data.used;
+            const maxBytes = 100 * 1024 * 1024; // 100 MB
+            const percentage = Math.min((usedBytes / maxBytes) * 100, 100).toFixed(0);
+
+            const bar = document.querySelector('.storage-fill');
+            const text = document.querySelector('.storage-bar-wrapper p');
+
+            if (bar) bar.style.width = `${percentage}%`;
+            if (text) text.textContent = `Spațiu de stocare folosit: ${percentage}%. Dacă rămâi fără spațiu, nu mai poți să creezi, să editezi sau să încarci fișiere.`;
+        })
+        .catch(err => console.error('Eroare la calcularea spațiului folosit:', err));
+}
+
 
 function deleteFile(fileName, isInFolder = false) {
     if (!confirm(`Sigur vrei să ștergi fișierul ${fileName}?`)) return;
@@ -512,9 +590,37 @@ function deleteFile(fileName, isInFolder = false) {
         });
 }
 
+function toggleTypeFilter() {
+    const popup = document.getElementById('typeFilterPopup');
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+}
+function toggleDateFilter() {
+    const popup = document.getElementById('dateFilterPopup');
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+}
+
+function applyFilters() {
+    // actualizează extensii
+    activeExtensions.clear();
+    document.querySelectorAll('#typeFilterPopup input[type="checkbox"]:checked')
+        .forEach(cb => activeExtensions.add(cb.value));
+
+    // actualizează filtrul de dată
+    const selectedDate = document.querySelector('#dateFilterPopup input[type="radio"]:checked');
+    dateFilter = selectedDate ? selectedDate.value : null;
+
+    loadSuggestedFiles(searchTerm);
+}
+
+
 
 window.addEventListener('DOMContentLoaded', () => {
     loadSuggestedFiles();
     loadFolders();
     updateStorageBar?.();
 });
+document.querySelector('.search-box')?.addEventListener('input', function () {
+    searchTerm = this.value;
+    loadSuggestedFiles();
+});
+

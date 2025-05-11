@@ -19,11 +19,47 @@
 <div class="search-section">
     <input type="text" placeholder="Caută în fișiere..." class="search-box" />
     <div class="filter-buttons">
-        <button>📁 Tip</button>
+        <button onclick="toggleTypeFilter()">📁 Tip</button>
         <button>👤 Persoane</button>
-        <button>📅 Modificat la</button>
-        <button>📍 Locație</button>
+        <button onclick="toggleDateFilter()">📅 Modificat la</button>
+        <button onclick="toggleLocationFilter()">📍 Locație</button>
     </div>
+
+    <!-- Popup Filtru Tipuri -->
+    <div class="filter-popup" id="typeFilterPopup" style="display:none; position:absolute; top: 130px; left: 50%; transform: translateX(-50%); background:#fff; border:1px solid #ccc; padding:10px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); z-index:10;">
+        <strong>Tipuri de fișiere:</strong>
+        <div style="display:flex; flex-direction:column; gap:5px; margin:10px 0;">
+            <label><input type="checkbox" value="png" /> .png</label>
+            <label><input type="checkbox" value="jpg" /> .jpg</label>
+            <label><input type="checkbox" value="jpeg" /> .jpeg</label>
+            <label><input type="checkbox" value="gif" /> .gif</label>
+            <label><input type="checkbox" value="pdf" /> .pdf</label>
+            <label><input type="checkbox" value="txt" /> .txt</label>
+            <label><input type="checkbox" value="doc" /> .doc</label>
+            <label><input type="checkbox" value="zip" /> .zip</label>
+        </div>
+        <button onclick="applyFilters()">Aplică</button>
+    </div>
+
+    <div class="filter-popup" id="locationFilterPopup" style="display:none; position:absolute; top: 130px; left: 50%; transform: translateX(-50%); background:#fff; border:1px solid #ccc; padding:10px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); z-index:10;">
+        <strong>Selectează folder:</strong>
+        <div id="locationFolderList" style="margin: 10px 0;">(Se încarcă...)</div>
+        <button onclick="applyLocationFilter()">Aplică</button>
+    </div>
+
+
+    <!-- Popup Filtru Modificat La -->
+    <div class="filter-popup" id="dateFilterPopup" style="display:none; position:absolute; top: 130px; left: 50%; transform: translateX(-50%); background:#fff; border:1px solid #ccc; padding:10px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); z-index:10;">
+        <strong>Filtru după dată:</strong>
+        <div style="display:flex; flex-direction:column; gap:5px; margin:10px 0;">
+            <label><input type="radio" name="dateFilter" value="hour" /> Ultima oră</label>
+            <label><input type="radio" name="dateFilter" value="day" /> Ultima zi</label>
+            <label><input type="radio" name="dateFilter" value="week" /> Ultima săptămână</label>
+        </div>
+        <button onclick="applyFilters()">Aplică</button>
+    </div>
+
+
 </div>
 
 <div class="suggested-sections">
