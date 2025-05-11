@@ -1,0 +1,29 @@
+﻿@page
+@model TestAppAlex.Pages.View.ProfileModel
+@{
+    ViewData["Title"] = "Profilul meu";
+}
+
+<div class="profile-container">
+    <div class="profile-card">
+        <h2>👤 Profilul meu</h2>
+
+        <form method="post">
+            <div class="form-group">
+                <label for="DisplayedName">Nume afișat:</label>
+                <input type="text" id="DisplayedName" name="DisplayedName" value="@Model.DisplayedName" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="SubscriptionType">Tip de abonament:</label>
+                <select id="SubscriptionType" name="SubscriptionType" class="form-control">
+                    <option value="Gratuit" selected="@("Gratuit" == Model.SubscriptionType)">Gratuit</option>
+                    <option value="Premium" selected="@("Premium" == Model.SubscriptionType)">Premium</option>
+                    <option value="Business" selected="@("Business" == Model.SubscriptionType)">Business</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-save">💾 Salvează</button>
+        </form>
+    </div>
+</div>
