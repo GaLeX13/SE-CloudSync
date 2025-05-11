@@ -489,6 +489,23 @@ function openFolder(folderId, folderName) {
 
     document.getElementById("folderModal").style.display = "block";
 }
+function updateStorageBar() {
+    fetch('/api/upload/storage')
+        .then(res => res.json())
+        .then(data => {
+            const usedBytes = data.used;
+            const maxBytes = 100 * 1024 * 1024; // 100 MB
+            const percentage = Math.min((usedBytes / maxBytes) * 100, 100).toFixed(0);
+
+            const bar = document.querySelector('.storage-fill');
+            const text = document.querySelector('.storage-bar-wrapper p');
+
+            if (bar) bar.style.width = `${percentage}%`;
+            if (text) text.textContent = `Spațiu de stocare folosit: ${percentage}%. Dacă rămâi fără spațiu, nu mai poți să creezi, să editezi sau să încarci fișiere.`;
+        })
+        .catch(err => console.error('Eroare la calcularea spațiului folosit:', err));
+}
+
 
 function deleteFile(fileName, isInFolder = false) {
     if (!confirm(`Sigur vrei să ștergi fișierul ${fileName}?`)) return;

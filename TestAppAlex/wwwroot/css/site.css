@@ -129,24 +129,23 @@ footer {
 
 /* === Storage Bar === */
 .storage-bar-wrapper {
-    background-color: #e0f0ff;
-    padding: 0.5rem 2rem;
-    text-align: center;
-    font-size: 0.95rem;
+    margin-bottom: 20px;
 }
+    .storage-bar-wrapper p {
+        text-align: center;
+    }
 
 .storage-bar {
-    height: 8px;
-    border-radius: 10px;
-    background-color: #d2e3f8;
-    margin: 0.5rem auto;
-    width: 60%;
+    background: #ccc;
+    height: 12px;
+    border-radius: 20px;
+    overflow: hidden;
 }
 
 .storage-fill {
     height: 100%;
-    background-color: #007bff;
-    border-radius: 10px;
+    background: #007bff;
+    transition: width 0.4s ease;
 }
 
 /* === Search Section === */
