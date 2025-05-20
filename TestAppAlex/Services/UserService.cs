@@ -37,6 +37,33 @@ namespace TestAppAlex.Services
 
             return user.PasswordHash == Hash(password) ? user : null;
         }
+        public async Task UpdatePlanAsync(string email, string plan)
+        {
+            var user = await _repo.GetByEmailAsync(email);
+            if (user != null)
+            {
+                user.Plan = plan;
+                user.MaxStorageMB = plan switch
+                {
+                    "Premium" => 15000,
+                    "Business" => 50000,
+                    _ => 5000
+                };
+                await _repo.SaveAsync();
+            }
+        }
+
+        public async Task DeleteAccountAsync(string email)
+        {
+            
+            var user = await _repo.GetByEmailAsync(email);
+            if (user != null)
+            {
+                await _repo.DeleteAsync(user);
+            }
+        }
+
+
 
         private string Hash(string input)
         {

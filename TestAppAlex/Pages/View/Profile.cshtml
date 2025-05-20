@@ -4,26 +4,46 @@
     ViewData["Title"] = "Profilul meu";
 }
 
-<div class="profile-container">
-    <div class="profile-card">
-        <h2>👤 Profilul meu</h2>
+<link rel="stylesheet" href="~/css/profile/profile.css" />
 
+<div class="profile-wrapper">
+    <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="profile-avatar" />
+    <h2>👤 Profilul meu</h2>
+
+    <label>Nume afișat:</label>
+    <input type="text" name="DisplayedName" value="@Model.DisplayedName" />
+
+    <p><strong>Current plan:</strong> <span class="current-plan">@Model.SubscriptionType</span></p>
+
+    <button onclick="document.getElementById('plan-modal').style.display='flex'" class="btn-change">🔁 Change Plan</button>
+
+    <form method="post" asp-page-handler="Logout">
+        <button type="submit" class="btn-logout">🔓 Logout</button>
+    </form>
+
+    <form method="post" asp-page-handler="Delete" onsubmit="return confirmDelete()">
+        <button type="submit" class="btn-delete">🗑️ Șterge contul</button>
+    </form>
+
+    <script>
+        function confirmDelete() {
+            return confirm("Ești sigur că vrei să-ți ștergi contul? Această acțiune este permanentă!");
+        }
+    </script>
+
+    <button class="btn-theme-toggle">🌙 Toggle Dark Mode</button>
+
+</div>
+
+<!-- PLAN MODAL -->
+<div id="plan-modal" class="modal">
+    <div class="modal-content">
+        <h3>Choose the plan that suits your needs:</h3>
         <form method="post">
-            <div class="form-group">
-                <label for="DisplayedName">Nume afișat:</label>
-                <input type="text" id="DisplayedName" name="DisplayedName" value="@Model.DisplayedName" class="form-control" />
-            </div>
-
-            <div class="form-group">
-                <label for="SubscriptionType">Tip de abonament:</label>
-                <select id="SubscriptionType" name="SubscriptionType" class="form-control">
-                    <option value="Gratuit" selected="@("Gratuit" == Model.SubscriptionType)">Gratuit</option>
-                    <option value="Premium" selected="@("Premium" == Model.SubscriptionType)">Premium</option>
-                    <option value="Business" selected="@("Business" == Model.SubscriptionType)">Business</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-save">💾 Salvează</button>
+            <button name="SubscriptionType" value="Basic" class="plan plan-basic">10MB — Basic <span>$0</span></button>
+            <button name="SubscriptionType" value="Premium" class="plan plan-premium">100MB — Premium <span>👑 $14/month</span></button>
+            <button name="SubscriptionType" value="Business" class="plan plan-business">1GB — Business <span>🌴 $24/month</span></button>
         </form>
+        <button onclick="document.getElementById('plan-modal').style.display='none'" class="btn-close">✖</button>
     </div>
 </div>

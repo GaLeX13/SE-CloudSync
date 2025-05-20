@@ -64,7 +64,7 @@ namespace TestAppAlex.Controllers
                 name = f.FileName,
                 size = f.FileSize,
                 uploadedAt = f.UploadedAt,
-                folderId = f.FolderId // 🔥 adăugat
+                folderId = f.FolderId 
             }));
         }
 

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
-    @if (!hideNavbar)
+    @if (!hideNavbar && User.Identity?.IsAuthenticated == true)
     {
         <header>
             <nav class="navbar">
@@ -23,7 +23,7 @@
                 <div class="navbar-links">
                     <a asp-page="/Home/Index">Home</a>
                     <a asp-page="/Privacy">Privacy</a>
-                    <a asp-page="/View/Profile"> Profil</a>
+                    <a asp-page="/View/Profile">Profil</a>
                 </div>
             </nav>
         </header>
@@ -36,6 +36,26 @@
     <footer class="border-top footer text-muted text-center p-2">
         &copy; 2025 - CloudSync
     </footer>
+    
+    <script>
+        // Aplica tema salvată
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Ascultă butonul doar când e gata DOM-ul
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.querySelector('.btn-theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-mode');
+                    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+                });
+            }
+        });
+    </script>
+
+
 
     @RenderSection("Scripts", required: false)
 </body>
