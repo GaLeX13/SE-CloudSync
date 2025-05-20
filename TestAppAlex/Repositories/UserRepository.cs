@@ -28,5 +28,28 @@ namespace TestAppAlex.Repositories
         {
             return await _ctx.Users.AnyAsync(u => u.Email == email);
         }
+
+        public async Task DeleteByEmailAsync(string email)
+        {
+            var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user != null)
+            {
+                _ctx.Users.Remove(user);
+                await _ctx.SaveChangesAsync();
+            }
+        }
+        public async Task DeleteAsync(User user)
+        {
+            _ctx.Users.Remove(user);
+            await _ctx.SaveChangesAsync(); 
+        }
+
+
+        public async Task SaveAsync()
+        {
+            await _ctx.SaveChangesAsync();
+        }
+
+
     }
 }

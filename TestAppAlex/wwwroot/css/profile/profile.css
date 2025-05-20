@@ -1,0 +1,170 @@
+﻿.profile-wrapper {
+    max-width: 500px;
+    margin: 3rem auto;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.15);
+    text-align: center;
+    transition: background 0.5s ease;
+}
+
+body.dark-mode .profile-wrapper {
+    background: rgba(20, 20, 20, 0.8);
+    color: white;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #1a73e8;
+    margin-bottom: 1rem;
+}
+
+h2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-top: 1rem;
+}
+
+input[type="text"] {
+    padding: 0.6rem;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.current-plan {
+    font-weight: bold;
+    color: #1a73e8;
+}
+
+.btn-change,
+.btn-logout,
+.btn-delete,
+button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.btn-change {
+    background: black;
+    color: yellow;
+    border: 2px solid yellow;
+}
+
+.btn-logout {
+    background: #555;
+    color: white;
+}
+
+.btn-delete {
+    background: crimson;
+    color: white;
+}
+
+    .btn-change:hover,
+    .btn-logout:hover,
+    .btn-delete:hover {
+        transform: scale(1.05);
+    }
+
+/* Dark Mode Button */
+.btn-theme-toggle {
+    background: #1a73e8;
+    color: white;
+    border-radius: 30px;
+    padding: 0.7rem 1.5rem;
+    font-weight: bold;
+    margin-top: 2rem;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal .plan {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.plan-basic {
+    background: #eee;
+}
+
+.plan-premium {
+    background: gold;
+    box-shadow: 0 0 10px gold;
+    font-weight: bold;
+}
+
+.plan-business {
+    background: linear-gradient(to right, #48c6ef, #6f86d6);
+    color: white;
+    font-weight: bold;
+}
+
+.btn-close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

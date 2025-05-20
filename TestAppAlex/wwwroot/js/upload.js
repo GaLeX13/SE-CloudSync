@@ -183,7 +183,7 @@ function loadSuggestedFiles(term = searchTerm) {
             const lowerSearch = term.toLowerCase();
             files = files.filter(f => f.name.toLowerCase().includes(lowerSearch));
 
-            // ✅ Filtru după extensie
+            //  Filtru dupa extensie
             if (activeExtensions.size > 0) {
                 files = files.filter(f => {
                     const ext = f.name.split('.').pop().toLowerCase();
@@ -191,7 +191,7 @@ function loadSuggestedFiles(term = searchTerm) {
                 });
             }
 
-            // ✅ Filtru după dată
+            //  Filtru după data
             if (dateFilter) {
                 const now = new Date();
                 files = files.filter(f => {
@@ -210,7 +210,7 @@ function loadSuggestedFiles(term = searchTerm) {
             }
 
 
-            // 🔃 Sortare
+            //  Sortare
             if (sortMode === 'name') {
                 files.sort((a, b) => a.name.localeCompare(b.name));
             } else if (sortMode === 'date') {
@@ -219,7 +219,7 @@ function loadSuggestedFiles(term = searchTerm) {
                 files.sort((a, b) => b.size - a.size);
             }
 
-            // 🧱 Randare
+            //  Randare
             const container = document.querySelector('.dropdown:nth-of-type(2) .dropdown-content');
             container.innerHTML = '';
 
@@ -295,7 +295,7 @@ function applyLocationFilter() {
 }
 
 
-// ✅ Adaugam functia renameFile care lipsea (sau nu functiona)
+// renameFile(fileName) 
 function renameFile(oldName) {
     const newName = prompt("Noul nume pentru fișier:", oldName);
     if (!newName || newName.trim() === "" || newName === oldName) return;
@@ -312,7 +312,7 @@ function renameFile(oldName) {
         .then(() => {
             alert("Fișier redenumit cu succes!");
             loadSuggestedFiles();
-            if (currentFolderId !== null) openFolder(currentFolderId, currentFolderName); // update și folder dacă e deschis
+            if (currentFolderId !== null) openFolder(currentFolderId, currentFolderName); 
         })
         .catch(err => {
             alert("Redenumirea a eșuat.");
@@ -446,7 +446,7 @@ function folderMassDelete() {
         .then(() => {
             selectedFolderFiles.clear();
             closeFolderModal();
-            setTimeout(() => openFolder(currentFolderId, currentFolderName), 300); // reload după ștergere
+            setTimeout(() => openFolder(currentFolderId, currentFolderName), 300); 
         });
 }
 
@@ -495,7 +495,7 @@ document.getElementById('fileInput')?.addEventListener('change', async function 
 });
 
 
-// Pentru reîncărcare după delete
+
 let currentFolderId = null;
 let currentFolderName = "";
 function openFolder(folderId, folderName) {
@@ -577,7 +577,7 @@ function deleteFile(fileName, isInFolder = false) {
         .then(res => {
             if (!res.ok) throw new Error("Eroare la ștergere.");
             if (isInFolder) {
-                // 🔁 Reîncarcă folderul activ
+                // reincarca folderul activ
                 closeFolderModal();
                 setTimeout(() => openFolder(currentFolderId, currentFolderName), 300);
             } else {
@@ -600,12 +600,12 @@ function toggleDateFilter() {
 }
 
 function applyFilters() {
-    // actualizează extensii
+    // actualizeaza extensii
     activeExtensions.clear();
     document.querySelectorAll('#typeFilterPopup input[type="checkbox"]:checked')
         .forEach(cb => activeExtensions.add(cb.value));
 
-    // actualizează filtrul de dată
+    // actualizeaza filtrul de data
     const selectedDate = document.querySelector('#dateFilterPopup input[type="radio"]:checked');
     dateFilter = selectedDate ? selectedDate.value : null;
 
