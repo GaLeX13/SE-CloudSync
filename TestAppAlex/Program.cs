@@ -51,7 +51,4 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapRazorPages().WithStaticAssets();
 app.MapControllers(); // For UploadController
-
-await UserServiceTests.Run();
-
 app.Run();
